@@ -4,11 +4,15 @@
 
 ## 📌 KURZÜBERSICHT
 
-| Modell | Training | LR Typ | Patience Scheduler | Erwartete RMSE ex_22 |
-|--------|----------|--------|------|----------|
-| **RNN** | 1 Dataset (ex_1) | Fixt (0.001) | ❌ Nein | 688.63 W ❌ |
-| **RNN1** | 6 Datasets | Fixt (0.001) | ❌ Nein | 232.04 W ✅ |
-| **RNN2** | 6 Datasets | Dynamisch | ✅ Ja (10) | ~180 W ✅✅✅ |
+| Modell | Training | LSTM | LR Typ | Patience Scheduler | Erwartete RMSE ex_22 |
+|--------|----------|------|--------|------|----------|
+| **RNN** | 1 Dataset (ex_1) | 3 Lagen | Fixt (0.001) | ❌ Nein | 688.63 W ❌ |
+| **RNN1** | 6 Datasets | 3 Lagen | Fixt (0.001) | ❌ Nein | 232.04 W ✅ |
+| **RNN2** | 6 Datasets | 3 Lagen | Dynamisch (0.001) | ✅ Ja (10) | ~180 W ✅✅✅ |
+| **RNN3** | 6 Datasets | 3 Lagen | Dynamisch (0.01) | ✅ Ja (10) | TBD (Höhere LR) |
+| **RNN4** | 6 Datasets | 4 Lagen | Dynamisch (0.001) | ✅ Ja (10) | TBD (Tiefere) |
+| **RNN5** | 6 Datasets | 2 Lagen | Dynamisch (0.001) | ✅ Ja (10) | TBD (Seichter) |
+| **RNN6** | 6 Datasets | 3 Lagen | Dynamisch (0.0005) | ✅ Ja (10) | TBD (Niedrigere LR) |
 
 ---
 
@@ -230,6 +234,52 @@ NÄCHSTE PHASE:
 
 ---
 
+## 🔬 **MODELL 4-7: EXPERIMENTE MIT HYPERPARAMETERN (RNN3, RNN4, RNN5, RNN6)**
+
+### **Übersicht der Experimente**
+
+Nach dem Erfolg von RNN2 (Learning Rate Scheduler) werden vier weitere Varianten trainiert, um zu verstehen:
+
+1. **RNN3 - Höherer Learning Rate (0.01)**
+   - Ist ein **aggressiverer** Anfang besser als 0.001?
+   - Ermöglicht der größere LR schnellere Konvergenz oder führt zu Oszillationen?
+
+2. **RNN4 - Tiefere Netzwerk (4 LSTM Lagen statt 3)**
+   - Kann ein **tieferes Netzwerk** besser generalisieren?
+   - Oder führt mehr Kapazität zu Overfitting?
+
+3. **RNN5 - Seicherer Netzwerk (2 LSTM Lagen statt 3)**
+   - Funktioniert eine **leichtere Architektur** genauso gut?
+   - Schneller Training + weniger Parameter?
+
+4. **RNN6 - Niedrigerer Learning Rate (0.0005)**
+   - Ist ein **konservativerer** Anfang (gegenüber zu RNN3) besser?
+   - Präzisere Feinabstimmung von Anfang an?
+
+### **Zusammenfassung der Hyperparameter**
+
+```
+LR SPEKTRUM:
+  RNN3:  0.01   (10x HÖHER als RNN2) — aggressiv
+  RNN2:  0.001  (baseline)            — balanciert
+  RNN6:  0.0005 (2x TIEFER als RNN2)  — konservativ
+
+ARCHITEKTUR SPEKTRUM:
+  RNN4:  4 LSTM Lagen (TIEFER)  — mehr Kapazität
+  RNN2:  3 LSTM Lagen (baseline) — balanciert
+  RNN5:  2 LSTM Lagen (SEICHTER) — weniger Kapazität
+```
+
+Alle Modelle behalten:
+- ✅ Multi-Set Training (6 Datasets)
+- ✅ Learning Rate Scheduler mit patience=10
+- ✅ Early Stopping mit patience=20
+- ✅ Batch Size = 32
+- ✅ Optimierer = Adam
+
+---
+
 **Erstellt:** 2026-07-01  
-**Status:** RNN2 bereit für Training  
+**Zuletzt aktualisiert:** 2026-07-01 (RNN3-RNN6 hinzugefügt)  
+**Status:** RNN2-RNN6 bereit für Training  
 **Nächster Schritt:** Knowledge-Guided Learning mit Permissible States

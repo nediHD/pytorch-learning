@@ -46,7 +46,11 @@ gerät = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 modeli_za_testiranje = {
     'einfachesRNN.pth': 'Original (ex_1 samo)',
     'einfachesRNN1.pth': 'Multi-Set + Early Stopping',
-    'einfachesRNN2.pth': 'Multi-Set + Scheduler (Patience=10)'
+    'einfachesRNN2.pth': 'Multi-Set + Scheduler (LR=0.001)',
+    'einfachesRNN3.pth': 'Multi-Set + Scheduler (LR=0.01 - Viši)',
+    'einfachesRNN4.pth': 'Multi-Set + Scheduler (4 LSTM - Dublja)',
+    'einfachesRNN5.pth': 'Multi-Set + Scheduler (2 LSTM - Plića)',
+    'einfachesRNN6.pth': 'Multi-Set + Scheduler (LR=0.0005 - Niži)'
 }
 
 ucitani_modeli = {}
