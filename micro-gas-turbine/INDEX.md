@@ -1,361 +1,269 @@
 # 📚 MASTER INDEX - Gas Turbine RNN Projekt
 
-**Centralna dokumentacija i navigacija za sve RNN modele i eksperimente**
+**Centralna dokumentacija za sve RNN modele i Knowledge-Guided Learning**
 
 ---
 
-## 🗂️ KOMPLETAN DIREKTORIJ STRUKTURE
+## 🗂️ KOMPLETAN DIREKTORIJ STRUKTURA
 
 ```
 micro-gas-turbine/
 │
-├── 📄 INDEX.md                          ← 🎯 TI SI OVDJE - MASTER VODIČI
-├── 📄 README.md                         ← Main projekt README
+├── 📄 INDEX.md                          ← 🎯 TI SI OVDJE
+├── 📄 README.md                         ← Project overview
 │
-├── 📁 RNN/                              ← 🟠 BASELINE (1 dataset, RMSE 688W)
-│   ├── 📄 README.md                    ← RNN specifikacije
-│   ├── 📄 einfacheRNN_Colab.py         ← Training skript
-│   ├── 📁 models/                      ← Model weights
-│   │   └── 📄 einfachesRNN.pth        ← Trenirani model
-│   └── 📁 results/                     ← Predviđanja i plotovi
-│       ├── 📄 plot_einfachesRNN_ex_22.png
-│       └── 📄 plot_einfachesRNN_ex_4.png
+├── 📁 einfache_RNN/                     ← 🤖 BASELINE MODELI (bez prior knowledge)
+│   ├── 📄 README.md                    ← Vodiči za ovaj folder
+│   ├── 📁 RNN/                         ← Baseline (1 dataset)
+│   ├── 📁 RNN1/                        ← Multi-set (6 datasets)
+│   ├── 📁 RNN2/                        ← + Scheduler
+│   ├── 📁 RNN3/                        ← + Viši LR
+│   ├── 📁 RNN4/                        ← + 4 LSTM sloja
+│   ├── 📁 RNN5/                        ← + 2 LSTM sloja
+│   └── 📁 RNN6/                        ← + Niži LR
+│       (svaki sadrži: README.md, einfacheRNN*_Colab.py, models/, results/)
 │
-├── 📁 RNN1/                             ← 🟡 MULTI-SET (6 datasets, RMSE 232W)
-│   ├── 📄 README.md                    ← RNN1 specifikacije
-│   ├── 📄 einfacheRNN_Colab.py         ← Training skript (ISTO kao RNN)
-│   ├── 📁 models/                      ← Model weights
-│   │   └── 📄 einfachesRNN1.pth       ← Trenirani model
-│   └── 📁 results/                     ← Predviđanja i plotovi
-│       ├── 📄 plot_einfachesRNN1_ex_22.png
-│       └── 📄 plot_einfachesRNN1_ex_4.png
-│
-├── 📁 RNN2/                             ← 🟢 SCHEDULER (BASELINE, ~180W RMSE)
-│   ├── 📄 README.md                    ← RNN2 specifikacije
-│   ├── 📄 einfacheRNN2_Colab.py        ← Training skript (Learning Rate Scheduler)
-│   ├── 📁 models/                      ← Model weights (čeka treniranje)
-│   │   └── .gitkeep
-│   └── 📁 results/                     ← Rezultati (čeka treniranje)
-│       └── .gitkeep
-│
-├── 📁 RNN3/                             ← 🔵 EKSPERIMENT: Viši LR (0.01)
-│   ├── 📄 README.md                    ← RNN3 specifikacije
-│   ├── 📄 einfacheRNN3_Colab.py        ← Training skript (LR=0.01)
-│   ├── 📁 models/                      ← Model weights (čeka treniranje)
-│   │   └── .gitkeep
-│   └── 📁 results/                     ← Rezultati (čeka treniranje)
-│       └── .gitkeep
-│
-├── 📁 RNN4/                             ← 🟣 EKSPERIMENT: 4 LSTM sloja
-│   ├── 📄 README.md                    ← RNN4 specifikacije
-│   ├── 📄 einfacheRNN4_Colab.py        ← Training skript (Dublja arhitektura)
-│   ├── 📁 models/                      ← Model weights (čeka treniranje)
-│   │   └── .gitkeep
-│   └── 📁 results/                     ← Rezultati (čeka treniranje)
-│       └── .gitkeep
-│
-├── 📁 RNN5/                             ← 🟢 EKSPERIMENT: 2 LSTM sloja
-│   ├── 📄 README.md                    ← RNN5 specifikacije
-│   ├── 📄 einfacheRNN5_Colab.py        ← Training skript (Plića arhitektura)
-│   ├── 📁 models/                      ← Model weights (čeka treniranje)
-│   │   └── .gitkeep
-│   └── 📁 results/                     ← Rezultati (čeka treniranje)
-│       └── .gitkeep
-│
-├── 📁 RNN6/                             ← 🟠 EKSPERIMENT: Niži LR (0.0005)
-│   ├── 📄 README.md                    ← RNN6 specifikacije
-│   ├── 📄 einfacheRNN6_Colab.py        ← Training skript (LR=0.0005)
-│   ├── 📁 models/                      ← Model weights (čeka treniranje)
-│   │   └── .gitkeep
-│   └── 📁 results/                     ← Rezultati (čeka treniranje)
-│       └── .gitkeep
+├── 📁 RNN_with_prior_knowledge/         ← 🧠 KNOWLEDGE-GUIDED LEARNING
+│   ├── 📄 README.md                    ← Vodiči za Knowledge-Guided Learning
+│   ├── 📁 RNN_KGL_v1/                  ← Osnovni Knowledge-Guided model
+│   ├── 📁 RNN_KGL_v2/                  ← Optimizovano s Permissible States
+│   └── 📁 RNN_KGL_v3/                  ← Finalna verzija
+│       (svaki će sadržavati: README.md, kod, models/, results/)
 │
 ├── 📁 shared/                           ← 📚 ZAJEDNIČKE DATOTEKE
-│   ├── 📁 docs/                        ← Dokumentacija
-│   │   ├── 📄 TRAINING_LOG.md         ← Svi hiperparametri detalje
-│   │   ├── 📄 MODEL_GUIDE_DE.md       ← Usporedne tablice i vodiči
-│   │   ├── 📄 MODELS_COMPARISON_DE.md ← Eksperimentalni dizajn
-│   │   ├── 📄 RNN_EXPERIMENTS_SUMMARY_DE.md ← Brzi scenariji
-│   │   └── 📄 RNN2_SETUP.md           ← Scheduler vodiči
-│   ├── 📁 references/                  ← Strane reference
-│   │   └── 📄 Knowledge-Guided Learning of Temporal Dynamics...pdf
-│   └── 📁 tools/                       ← Test i evaluacijski alati
-│       ├── 📄 test_model.py            ← Testiraj sve modele na RMSE
-│       └── 📄 plot_modeli.py           ← Generiraj prediction plots
+│   ├── 📁 docs/                        ← Sve dokumentacije
+│   │   ├── TRAINING_LOG.md
+│   │   ├── MODEL_GUIDE_DE.md
+│   │   ├── MODELS_COMPARISON_DE.md
+│   │   ├── RNN_EXPERIMENTS_SUMMARY_DE.md
+│   │   └── RNN2_SETUP.md
+│   ├── 📁 tools/                       ← Test i evaluacijski alati
+│   │   ├── test_model.py
+│   │   └── plot_modeli.py
+│   └── 📁 references/                  ← Research papers
+│       └── Knowledge-Guided Learning PDF
 │
-├── 📁 data/                             ← TRAINI/TEST PODATCI
-│   ├── 📁 train/                       ← 6 datoteka za treniranje
-│   │   ├── 📄 ex_1.csv
-│   │   ├── 📄 ex_9.csv
-│   │   ├── 📄 ex_20.csv
-│   │   ├── 📄 ex_21.csv
-│   │   ├── 📄 ex_23.csv
-│   │   └── 📄 ex_24.csv
-│   └── 📁 test/                        ← 2 datoteke za evaluaciju
-│       ├── 📄 ex_4.csv
-│       └── 📄 ex_22.csv
+├── 📁 data/                             ← PODATCI
+│   ├── 📁 train/                       ← 6 CSV za treniranje
+│   └── 📁 test/                        ← 2 CSV za evaluaciju
 │
-├── 📄 einfacheRNN_Colab.py              ← Python: RNN + RNN1 (parent za kopiranje)
-├── 📄 einfacheRNN2_Colab.py             ← Python: RNN2 (parent za kopiranje)
-├── 📄 einfacheRNN3_Colab.py             ← Python: RNN3 (parent za kopiranje)
-├── 📄 einfacheRNN4_Colab.py             ← Python: RNN4 (parent za kopiranje)
-├── 📄 einfacheRNN5_Colab.py             ← Python: RNN5 (parent za kopiranje)
-└── 📄 einfacheRNN6_Colab.py             ← Python: RNN6 (parent za kopiranje)
+└── .gitignore
 ```
 
 ---
 
-## 🎯 GDJE JE ŠTA? (BRZI NAVIGACIJSKI VODIČI)
+## 🎯 BRZA NAVIGACIJA
 
-| Trebam | Gdje Ići | Datoteka |
-|--------|---------|----------|
-| **Razumijevanje jednog modela** | RNN*/README.md | Specifikacije, hiperparametri, brzi vodiči |
-| **Svi hiperparametri detaljno** | shared/docs/ | TRAINING_LOG.md |
-| **Usporedbe između modela** | shared/docs/ | MODEL_GUIDE_DE.md ili MODELS_COMPARISON_DE.md |
-| **Kako trenirati** | RNN*/README.md → einfacheRNN*_Colab.py | Python skript za treniranje |
-| **Gdje je trenirani model** | RNN*/models/ | einfachesRNN*.pth (nakon treniranja) |
-| **Gdje su plotovi rezultata** | RNN*/results/ | plot_einfachesRNN*_*.png |
-| **Kako testirati sve modele** | shared/tools/ | test_model.py |
-| **Kako vizualizirati** | shared/tools/ | plot_modeli.py |
-| **Referentni paper** | shared/references/ | Knowledge-Guided Learning PDF |
-| **Brzi scenariji i FAQ** | shared/docs/ | RNN_EXPERIMENTS_SUMMARY_DE.md |
+### **KORAK 1: Baseline Modeli (einfache_RNN)**
+
+```
+Trebam razumijevanje baseline RNN modela?
+  → einfache_RNN/README.md
+
+Trebam trenirati neki RNN model?
+  → einfache_RNN/RNN*/README.md
+  → einfache_RNN/RNN*/einfacheRNN*_Colab.py
+
+Trebam sve hiperparametre?
+  → shared/docs/TRAINING_LOG.md
+```
+
+### **KORAK 2: Knowledge-Guided Learning (RNN_with_prior_knowledge)**
+
+```
+Trebam razumijevanje Knowledge-Guided Learning?
+  → RNN_with_prior_knowledge/README.md
+  → shared/references/Knowledge-Guided Learning PDF
+
+Trebam trenirati Knowledge-Guided model?
+  → RNN_with_prior_knowledge/RNN_KGL_v*/README.md
+  → RNN_with_prior_knowledge/RNN_KGL_v*/kod.py
+```
+
+### **KORAK 3: Testiranje**
+
+```
+Trebam testiraj sve modele?
+  → shared/tools/test_model.py
+
+Trebam visualizirati rezultate?
+  → shared/tools/plot_modeli.py
+```
 
 ---
 
-## 📂 DATOTEKE PO TIPU
+## 📊 FAZE PROJEKTA
 
-### Python Training Skripti (Colab)
-```
-einfacheRNN_Colab.py      → RNN + RNN1 (ista skripta)
-einfacheRNN2_Colab.py     → RNN2 (Scheduler)
-einfacheRNN3_Colab.py     → RNN3 (Viši LR)
-einfacheRNN4_Colab.py     → RNN4 (4 LSTM)
-einfacheRNN5_Colab.py     → RNN5 (2 LSTM)
-einfacheRNN6_Colab.py     → RNN6 (Niži LR)
-```
+### **Faza 1️⃣: Baseline Modeli (SADAŠNJA FAZA)**
 
-### Model Weights (.pth)
 ```
-RNN/models/einfachesRNN.pth       → Trenirani RNN model
-RNN1/models/einfachesRNN1.pth     → Trenirani RNN1 model
-RNN2/models/einfachesRNN2.pth     → (čeka treniranje)
-RNN3/models/einfachesRNN3.pth     → (čeka treniranje)
-RNN4/models/einfachesRNN4.pth     → (čeka treniranje)
-RNN5/models/einfachesRNN5.pth     → (čeka treniranje)
-RNN6/models/einfachesRNN6.pth     → (čeka treniranje)
+einfache_RNN/ sadrži 7 progresivnih modela:
+
+RNN:     688 W ❌ (baseline greška)
+    ↓
+RNN1:    232 W ✅ (66% bolje - multi-set)
+    ↓
+RNN2:    ~180 W ✅✅ (23% dalje - scheduler)
+    ↓
+RNN3-6:  TBD 🔬 (hyperparameter eksperimenti)
+
+Cilj: Razumijevanje što pomaže poboljšati RMSE
 ```
 
-### Plot Rezultati (.png)
-```
-RNN/results/plot_einfachesRNN_ex_*.png      → RNN vizualizacija
-RNN1/results/plot_einfachesRNN1_ex_*.png    → RNN1 vizualizacija
-RNN2-6/results/                             → (čeka treniranje)
-```
+### **Faza 2️⃣: Knowledge-Guided Learning (SLJEDEĆA FAZA)**
 
-### Dokumentacijske Datoteke (.md)
 ```
-RNN*/README.md                          → Specifikacije svakog modela
-shared/docs/TRAINING_LOG.md             → Svi hiperparametri detalje
-shared/docs/MODEL_GUIDE_DE.md           → Usporedne tablice
-shared/docs/MODELS_COMPARISON_DE.md     → Eksperimentalni dizajn
-shared/docs/RNN_EXPERIMENTS_SUMMARY_DE.md → Brzi scenariji
-shared/docs/RNN2_SETUP.md               → Scheduler vodiči
-```
+RNN_with_prior_knowledge/ sadrži modele s prior znanjem:
 
-### Testiranje i Evaluacija
-```
-shared/tools/test_model.py              → Testiraj sve 7 modela
-shared/tools/plot_modeli.py             → Generiraj sve plotove
-```
+RNN_KGL_v1:  Bazna verzija + Permissible States
+RNN_KGL_v2:  Optimizovana s prior knowledge loss
+RNN_KGL_v3:  Finalna verzija (~140-150 W očekivano?)
 
-### Reference
-```
-shared/references/Knowledge-Guided...pdf → Originalni paper
+Cilj: Kombinirati data-driven + knowledge-driven learning
 ```
 
 ---
 
 ## 🚀 KAKO POČETI
 
-### KORAK 1: Razumijevanje (15 minuta)
-```
-1. Čitaj INDEX.md (ovaj file) - pregled strukture
-2. Čitaj RNN/README.md - razumijevanje baseline
-3. Čitaj RNN2/README.md - razumijevanje Scheduler-a
-4. Čitaj shared/docs/MODELS_COMPARISON_DE.md - svi eksperimenti obješnjeni
-```
+### **SCENARIO A: Trebam trenirati baseline modele**
 
-### KORAK 2: Treniranje Modela (3-4 sata GPU)
-```
-Za svaki model (RNN3, RNN4, RNN5, RNN6):
-  1. Otvori RNN*/README.md
-  2. Kopira kod iz einfacheRNN*_Colab.py
-  3. Otvori Google Colab: colab.research.google.com
-  4. Runtime → Change runtime → GPU
-  5. Zalijepi kod, Shift+Enter
-  6. Učitaj 6 CSV datoteke iz data/train/
-  7. Čekaj 30-50 minuta
-  8. Preuzmi einfachesRNN*.pth
-  9. Postavi u RNN*/models/
-```
+1. Čitaj `einfache_RNN/README.md` - razumijevanje strukture
+2. Odaberi model: `einfache_RNN/RNN*/README.md`
+3. Kopiraj kod: `einfache_RNN/RNN*/einfacheRNN*_Colab.py`
+4. Treniraj u Google Colab (30-50 minuta)
+5. Testiraj: `shared/tools/test_model.py`
+6. Vizualizacija: `shared/tools/plot_modeli.py`
 
-### KORAK 3: Testiranje (10 minuta)
-```
-1. cd shared/tools/
-2. python test_model.py      # Vidi RMSE sve 7 modela
-3. python plot_modeli.py     # Generiraj plotove
-4. Pogledaj rezultate u RNN*/results/
-```
+### **SCENARIO B: Trebam razumijevanje Knowledge-Guided Learning**
 
-### KORAK 4: Analiza
+1. Čitaj `RNN_with_prior_knowledge/README.md`
+2. Čitaj paper: `shared/references/Knowledge-Guided Learning PDF`
+3. Čekaj na RNN_KGL_v* skripte koje će biti kreirane
+
+### **SCENARIO C: Trebam sve informacije**
+
+1. Čitaj: `einfache_RNN/README.md` (baseline)
+2. Čitaj: `RNN_with_prior_knowledge/README.md` (Knowledge-Guided)
+3. Čitaj: `shared/docs/` (sva dokumentacija)
+4. Počni treniranje
+
+---
+
+## 📈 OČEKIVANA NAPRETKA
+
 ```
-1. Otvorite shared/docs/TRAINING_LOG.md
-2. Dopuní RMSE vrijednosti koje ste izmjerili
-3. Usporedi s očekivanima
-4. Kreiraj zaključke za sljedeću fazu
+┌─────────────────────────────────────────────┐
+│          RMSE PROGRESSION                   │
+├─────────────────────────────────────────────┤
+│ RNN:                    688 W ❌            │
+│ RNN1:                   232 W ✅ (66% ↓)    │
+│ RNN2:                   ~180 W ✅✅ (23% ↓) │
+│ RNN3-6:                 TBD 🔬             │
+│                                             │
+│ RNN_KGL_v1:             TBD 🧠             │
+│ RNN_KGL_v2:             TBD 🧠             │
+│ RNN_KGL_v3:             ~140-150 W 🚀      │
+└─────────────────────────────────────────────┘
 ```
 
 ---
 
-## 📊 PROGRESIJA POBOLJŠANJA
+## 🗂️ GDJE JE ŠTA
 
-```
-RNN          (1 dataset)  → RMSE: 688.63 W ❌
-    ↓ (4.3x vise podatka)
-RNN1         (6 datasets) → RMSE: 232.04 W ✅ (66% bolje!)
-    ↓ (Scheduler)
-RNN2         (scheduler)  → RMSE: ~180 W ✅✅ (23% dalje)
-    ↙        ↙       ↘        ↘
-RNN3      RNN4        RNN5     RNN6
-(0.01LR)  (4 sloja)  (2 sloja) (0.0005LR)
-TBD?      TBD?        TBD?     TBD?
-```
+| Trebam | Gdje |
+|--------|------|
+| **Razumijevanje baseline RNN** | `einfache_RNN/README.md` |
+| **Razumijevanje Knowledge-Guided Learning** | `RNN_with_prior_knowledge/README.md` |
+| **Specifikacije RNN modela** | `einfache_RNN/RNN*/README.md` |
+| **Treniranje RNN modela** | `einfache_RNN/RNN*/einfacheRNN*_Colab.py` |
+| **Sve hiperparametre detaljno** | `shared/docs/TRAINING_LOG.md` |
+| **Usporedbe između modela** | `shared/docs/MODEL_GUIDE_DE.md` |
+| **Testiranje svih modela** | `shared/tools/test_model.py` |
+| **Visualizacija rezultata** | `shared/tools/plot_modeli.py` |
+| **Originalni research paper** | `shared/references/Knowledge-Guided Learning PDF` |
 
 ---
 
-## ⚙️ TEHNIČKI DETALJI
+## ✨ KLJUČNE DATOTEKE
 
-### Sve Modele Koriste
-- ✅ Multi-set Training (6 CSV datoteke)
-- ✅ Learning Rate Scheduler (RNN2+)
-- ✅ Early Stopping (patience=20)
-- ✅ 100% Nemačka Dokumentacija
-- ✅ Google Colab Optimiziran Kod
-- ✅ GPU Support (CUDA/CPU fallback)
+### **Baseline (einfache_RNN)**
+- 7 RNN modela (RNN do RNN6)
+- Svaki ima: README.md, einfacheRNN*_Colab.py, models/, results/
+- Svaki testira drukčiti hyperparameter
 
-### Razlike Između Modela
-```
-RNN2:  LR=0.001, 3 LSTM, Baseline
-RNN3:  LR=0.01,  3 LSTM, Eksperiment: viši LR
-RNN4:  LR=0.001, 4 LSTM, Eksperiment: dublja
-RNN5:  LR=0.001, 2 LSTM, Eksperiment: plića
-RNN6:  LR=0.0005, 3 LSTM, Eksperiment: niži LR
-```
+### **Knowledge-Guided (RNN_with_prior_knowledge)**
+- 3 verzije KGL modela (v1, v2, v3)
+- Svaki ugrađuje prior znanje o turbinama
+- Svaki koristi Permissible States ograničenja
+
+### **Shared Resources**
+- Dokumentacija (5 .md datoteka)
+- Test skripti (test_model.py, plot_modeli.py)
+- Research paper (PDF)
 
 ---
 
 ## ❓ ČESTE PITANJA
 
-**P: Gdje trebam početi?**  
-O: INDEX.md (ovdje) → RNN2/README.md → shared/docs/MODELS_COMPARISON_DE.md
+**P: Gdje početi ako sam novi na projektu?**
+O: Čitaj INDEX.md (sad) → einfache_RNN/README.md → RNN*/README.md
 
-**P: Gdje su Colab skripti?**  
-O: einfacheRNN*_Colab.py (u parent direktoriju i u RNN*/lokalno)
+**P: Koji model trebam trenirati?**
+O: Za brzi start: RNN2. Za eksperimente: RNN3-6. Za Knowledge: RNN_KGL_v1
 
-**P: Gdje je kod za RNN i RNN1?**  
-O: Oboje su u einfacheRNN_Colab.py (ista skripta, drugačitji dataset loading)
+**P: Koja je razlika između einfache_RNN i RNN_with_prior_knowledge?**
+O: **einfache_RNN** = samo data-driven learning
+   **RNN_with_prior_knowledge** = kombinacija data + domain knowledge
 
-**P: Trebam li sve čitati?**  
-O: Ne - RNN*/README.md je dovoljno za brz početak
-
-**P: Koji model trebam trenirati?**  
-O: Trebaj RNN2-6 u Colab-u (RNN i RNN1 su već trenirani)
-
-**P: Gdje će biti .pth datoteke?**  
-O: U RNN*/models/ nakon što preuzmete s Colab-a
-
-**P: Gdje će biti plotovi?**  
-O: U RNN*/results/ nakon što pokrenete plot_modeli.py
-
-**P: Trebam li data/ folder?**  
-O: DA - trebaju data/train/ i data/test/ CSV datoteke
+**P: Gdje je kod za Knowledge-Guided Learning?**
+O: U RNN_with_prior_knowledge/ (još se kreira)
 
 ---
 
-## 🎓 EDUKACIJSKE LEKCIJE
+## 🎓 EDUKACIJSKI REDOSLIJED
 
-| Model | Učiš | Zaključak |
-|-------|------|----------|
-| RNN | Baseline + Overfitting | 1 dataset nije dovoljno |
-| RNN1 | Multi-dataset Snaga | Datavariabilnost kritična |
-| RNN2 | Adaptive LR | Scheduler dramatično pomaže |
-| RNN3 | Viši LR | Agresivniji početak? |
-| RNN4 | Dublja Arhitektura | Trebam li više slojeva? |
-| RNN5 | Plića Arhitektura | Trebam li samo 2 sloja? |
-| RNN6 | Niži LR | Konzervativan početak? |
-
----
-
-## 📈 VREMENSKI OKVIR
-
-| Aktivnost | Gdje | Vrijeme |
-|----------|------|---------|
-| Setup (čitanje) | Index + README | 10-15 min |
-| Treniranje RNN2 | Colab GPU | 40-50 min |
-| Treniranje RNN3 | Colab GPU | 40-50 min |
-| Treniranje RNN4 | Colab GPU | 50 min (duže) |
-| Treniranje RNN5 | Colab GPU | 30-40 min (brže) |
-| Treniranje RNN6 | Colab GPU | 40-50 min |
-| Testing (svi) | Lokalno | 5-10 min |
-| **TOTAL** | - | **4-5 sati** |
+1. **Razumijevanje baseline problema** (einfache_RNN/RNN)
+   - Overfitting s 1 datasetom
+   
+2. **Multi-set treniranje** (einfache_RNN/RNN1)
+   - Snaga datavarijabitilnosti
+   
+3. **Adaptive Learning Rate** (einfache_RNN/RNN2)
+   - Scheduler za fine-tuning
+   
+4. **Hyperparameter eksperimenti** (einfache_RNN/RNN3-6)
+   - LR spektrum, dubina mreže
+   
+5. **Knowledge-Guided Learning** (RNN_with_prior_knowledge)
+   - Ugrađivanje prior znanja
+   - Permissible States ograničenja
 
 ---
 
-## 🔄 WORKFLOW
+## 📅 VREMENSKE CRTE
 
-```
-1. Čitaj dokumentaciju
-   └─ INDEX.md → RNN*/README.md → shared/docs/
-
-2. Treniraj modele
-   └─ Google Colab: Copy einfacheRNN*_Colab.py → Train → Download .pth
-
-3. Testiraj
-   └─ shared/tools/test_model.py → shared/tools/plot_modeli.py
-
-4. Analiziraj
-   └─ Usporedi RMSE → Update TRAINING_LOG.md → Zaključi
-
-5. Naprijed
-   └─ Knowledge-Guided Learning s Permissible States
-```
-
----
-
-## 🎯 KONAČNI CILJ
-
-Kroz ove eksperimente razumiješ:
-- 💡 Learning Rate Impact (LR spektrum: RNN3 vs RNN2 vs RNN6)
-- 💡 Network Depth Impact (arhitektura: RNN4 vs RNN2 vs RNN5)
-- 💡 Hyperparameter Tuning (kako odabrati najbolje)
-- 💡 Model Evaluation (RMSE, MAE, MSE metrike)
-- 💡 Data Importance (multi-dataset vs single)
-
-Tada možeš sigurno prelaziti na **Knowledge-Guided Learning** fazu!
+| Aktivnost | Vrijeme |
+|----------|---------|
+| Setup (čitanje) | 20-30 min |
+| Treniranje RNN2 | 40-50 min |
+| Treniranje RNN3-6 | 160-200 min |
+| Testing svih | 10-15 min |
+| Knowledge-Guided (v1) | 60-90 min |
+| **TOTAL** | **~5-6 sati** |
 
 ---
 
 **INDEX Kreirano:** 2026-07-01  
-**Zadnja Ažuriranja:** Kompletna reorganizacija datoteka u folderе  
-**Verzija:** 2.0 (Reorganized Structure)
+**Zadnja Ažuriranja:** Reorganizacija u 2 glavna foldera  
+**Verzija:** 3.0 (Categorized Structure)
 
 ---
 
-## 🚀 READY TO BEGIN?
+## 🚀 READY?
 
-1. **Brzo:** RNN*/README.md → Treniranje
-2. **Detaljno:** INDEX → shared/docs/ → Treniranje
-3. **Kompleto:** Svi README → Sva dokumentacija → Treniranje
+**Faza 1 - Baseline:** `einfache_RNN/README.md` 🤖  
+**Faza 2 - Knowledge:** `RNN_with_prior_knowledge/README.md` 🧠
 
 **Let's go! 🎉**
 
