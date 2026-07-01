@@ -18,6 +18,7 @@ env/
 .ipynb_checkpoints/
 
 # PyTorch saved models (large binary files)
+*.pth
 saved_models/*.pth
 
 # IDE
