@@ -47,13 +47,13 @@ print("=" * 80)
 gerät = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 modeli_za_testiranje = {
-    'einfachesRNN.pth': 'Original (ex_1 samo)',
-    'einfachesRNN1.pth': 'Multi-Set + Early Stopping',
-    'einfachesRNN2.pth': 'Multi-Set + Scheduler (LR=0.001)',
-    'einfachesRNN3.pth': 'Multi-Set + Scheduler (LR=0.01 - Viši)',
-    'einfachesRNN4.pth': 'Multi-Set + Scheduler (4 LSTM - Dublja)',
-    'einfachesRNN5.pth': 'Multi-Set + Scheduler (2 LSTM - Plića)',
-    'einfachesRNN6.pth': 'Multi-Set + Scheduler (LR=0.0005 - Niži)'
+    '../RNN/models/einfachesRNN.pth': 'Original (ex_1 samo)',
+    '../RNN1/models/einfachesRNN1.pth': 'Multi-Set + Early Stopping',
+    '../RNN2/models/einfachesRNN2.pth': 'Multi-Set + Scheduler (LR=0.001)',
+    '../RNN3/models/einfachesRNN3.pth': 'Multi-Set + Scheduler (LR=0.01 - Viši)',
+    '../RNN4/models/einfachesRNN4.pth': 'Multi-Set + Scheduler (4 LSTM - Dublja)',
+    '../RNN5/models/einfachesRNN5.pth': 'Multi-Set + Scheduler (2 LSTM - Plića)',
+    '../RNN6/models/einfachesRNN6.pth': 'Multi-Set + Scheduler (LR=0.0005 - Niži)'
 }
 
 ucitani_modeli = {}
