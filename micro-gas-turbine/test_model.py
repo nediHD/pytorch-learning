@@ -10,7 +10,7 @@ import torch.nn as nn
 from pathlib import Path
 
 print("=" * 80)
-print("USPOREDBA DVAJU MODELA: einfachesRNN.pth vs einfachesRNN1.pth")
+print("USPOREDBA TRI MODELA: einfachesRNN.pth vs einfachesRNN1.pth vs einfachesRNN2.pth")
 print("TEST NA: ex_4.csv I ex_22.csv")
 print("=" * 80)
 
@@ -45,7 +45,8 @@ gerät = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 modeli_za_testiranje = {
     'einfachesRNN.pth': 'Original (ex_1 samo)',
-    'einfachesRNN1.pth': 'Multi-Set + Early Stopping'
+    'einfachesRNN1.pth': 'Multi-Set + Early Stopping',
+    'einfachesRNN2.pth': 'Multi-Set + Scheduler (Patience=10)'
 }
 
 ucitani_modeli = {}
@@ -242,6 +243,27 @@ for naziv_dataseta in test_datoteke.keys():
 # ============================================================================
 # DETALJNI ISPIS SVIH REZULTATA
 # ============================================================================
+
+print("\n" + "=" * 80)
+print("RANKING MODELA - NAJBOLJI PO DATASETU")
+print("=" * 80)
+
+for naziv_dataseta in test_datoteke.keys():
+    print(f"\n📊 {naziv_dataseta} - RANKING:")
+
+    modeli_sortirani = []
+    for model_naziv in rezultati.keys():
+        if naziv_dataseta not in rezultati[model_naziv]:
+            continue
+        rmse = rezultati[model_naziv][naziv_dataseta]['RMSE']
+        modeli_sortirani.append((model_naziv, rmse))
+
+    # Sortiraj po RMSE (od manjeg ka većem - bolji je manji)
+    modeli_sortirani.sort(key=lambda x: x[1])
+
+    for rang, (model, rmse) in enumerate(modeli_sortirani, 1):
+        medalja = ['🥇', '🥈', '🥉'][rang-1] if rang <= 3 else f'{rang}.'
+        print(f"  {medalja} {model:<30} RMSE: {rmse:.2f} W")
 
 print("\n" + "=" * 80)
 print("DETALJNI REZULTATI PO MODELU I DATASETU")
