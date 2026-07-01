@@ -192,11 +192,7 @@ scheduler = ReduceLROnPlateau(
     optimizer,
     mode='min',              # Minimiere den Verlust
     factor=0.5,              # Neuer LR = Alter LR × 0.5
-    patience=10,             # Warte 10 Epochen ohne Verbesserung BEVOR LR reduziert wird
-    verbose=True,            # Drucke wenn LR geändert wird
-    threshold=1e-4,          # Mindeständerung um als Verbesserung zu zählen
-    cooldown=0,              # Keine Cooldown-Periode
-    min_lr=1e-6              # Minimum LR um zu vermeiden dass zu klein wird
+    patience=10              # Warte 10 Epochen ohne Verbesserung BEVOR LR reduziert wird
 )
 
 anzahl_epochen = 300

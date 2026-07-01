@@ -194,11 +194,7 @@ scheduler = ReduceLROnPlateau(
     optimizer,
     mode='min',
     factor=0.5,
-    patience=10,
-    verbose=True,
-    threshold=1e-4,
-    cooldown=0,
-    min_lr=1e-6
+    patience=10
 )
 
 anzahl_epochen = 300
