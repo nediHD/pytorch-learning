@@ -1,6 +1,7 @@
+# -*- coding: utf-8 -*-
 # ============================================================================
 # EINFACHES RNN MODELL - ZA GOOGLE COLAB (SA GPU!)
-# Nije RNN sa LSTM i MSE Verlustfunktion
+# MULTI-SET TRAINING: ex_1, ex_4, ex_22 + EARLY STOPPING
 # ============================================================================
 
 # KORAK 0: SETUP ZA GOOGLE COLAB
@@ -14,7 +15,7 @@ import numpy as np
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import TensorDataset, DataLoader
-from tqdm import tqdm  # Za progress bar
+from tqdm import tqdm
 
 # Provjeri GPU
 print(f"GPU dostupan: {torch.cuda.is_available()}")
@@ -26,9 +27,8 @@ else:
 # Za Colab - učitaj datoteke
 print("\nUčitavanje datoteka iz Colab:")
 from google.colab import files
-print("Klikni na 'Choose Files' i odaberi:")
-print("  - data/train/ex_1.csv")
-print("  - data/test/ex_*.csv (ako imaš)")
+print("Klikni na 'Choose Files' i odaberi sve CSV datoteke:")
+print("  - ex_1.csv, ex_4.csv, ex_22.csv (svi dostupni setovi)")
 
 uploaded = files.upload()
 print(f"\n✅ Učitano: {list(uploaded.keys())}")
@@ -39,43 +39,66 @@ print(f"Broj datoteka: {len(uploaded)}\n")
 # ============================================================================
 
 print("\n" + "=" * 80)
-print("KORAK 1: UČITAVANJE PODATAKA")
+print("KORAK 1: UČITAVANJE SVIH TRAINING SETOVA")
 print("=" * 80)
 
-# Pronađi datoteku automatski
 import os
 from pathlib import Path
 
-print("Tražim ex_1.csv...")
-csv_file = None
+# Pronađi sve dostupne CSV datoteke iz data/train/
+print("Tražim sve dostupne training setove iz data/train/...\n")
 
-# Provjeri sve moguće lokacije
-for root, dirs, csv_files in os.walk('.'):
-    if 'ex_1.csv' in csv_files:
-        csv_file = os.path.join(root, 'ex_1.csv')
-        print(f"✅ Pronađena: {csv_file}")
-        break
+csv_files_dict = {}
 
-if csv_file is None:
-    print("❌ ex_1.csv nije pronađena!")
-    print("\nDatoteke u trenutnom direktoriju:")
-    for root, dirs, csv_files in os.walk('.'):
-        for file in csv_files:
-            if file.endswith('.csv'):
-                print(f"  {os.path.join(root, file)}")
+# Prvo pokušaj data/train/ (standardna lokacija)
+train_path = 'data/train'
+if os.path.exists(train_path):
+    for file in os.listdir(train_path):
+        if file.endswith('.csv') and file.startswith('ex_'):
+            full_path = os.path.join(train_path, file)
+            csv_files_dict[file] = full_path
+            print(f"  ✅ Pronađena: {file}")
+
+# Ako nema data/train/, traži u cijelom direktoriju
+if not csv_files_dict:
+    print("  Direktorij data/train/ nije pronađen, tražim drugdje...")
+    for root, dirs, files in os.walk('.'):
+        for file in files:
+            if file.endswith('.csv') and file.startswith('ex_'):
+                full_path = os.path.join(root, file)
+                csv_files_dict[file] = full_path
+                print(f"  ✅ Pronađena: {file}")
+
+if not csv_files_dict:
+    print("❌ Nema CSV datoteka!")
     exit()
 
-# Učitaj datoteku
-print(f"📂 TRAINING datoteka: {csv_file}")
-daten = pd.read_csv(csv_file)
-print(f"✅ Učitano: {len(daten)} redaka\n")
+# Učitaj i objedini sve datoteke
+print(f"\n📂 Objedinjujem {len(csv_files_dict)} datoteke...")
 
-# Ekstrahiraj signale
-eingangssignal = daten['input_voltage'].values
-ausgangssignal = daten['el_power'].values
+svi_ulazi = []
+svi_izlazi = []
+ukupni_redci = 0
 
-print(f"Ulazni signal - Min: {eingangssignal.min():.2f}V, Max: {eingangssignal.max():.2f}V")
-print(f"Izlazni signal - Min: {ausgangssignal.min():.2f}W, Max: {ausgangssignal.max():.2f}W")
+for naziv, putanja in sorted(csv_files_dict.items()):
+    daten = pd.read_csv(putanja)
+    ulaz = daten['input_voltage'].values
+    izlaz = daten['el_power'].values
+
+    svi_ulazi.append(ulaz)
+    svi_izlazi.append(izlaz)
+    ukupni_redci += len(daten)
+
+    print(f"  ✅ {naziv}: {len(daten)} redaka (min={ulaz.min():.2f}V, max={ulaz.max():.2f}V)")
+
+# Objedini sve u jedan niz
+eingangssignal = np.concatenate(svi_ulazi)
+ausgangssignal = np.concatenate(svi_izlazi)
+
+print(f"\n📊 UKUPNI TRAINING SET:")
+print(f"  Redaka: {ukupni_redci}")
+print(f"  Ulazni signal - Min: {eingangssignal.min():.2f}V, Max: {eingangssignal.max():.2f}V")
+print(f"  Izlazni signal - Min: {ausgangssignal.min():.2f}W, Max: {ausgangssignal.max():.2f}W")
 
 print("\n" + "=" * 80)
 print("KORAK 2: SEKVENCE (N=451)")
@@ -156,15 +179,18 @@ verlustfunktion = nn.MSELoss()
 print("Verlustfunktion: MSE")
 
 print("\n" + "=" * 80)
-print("KORAK 6: TRENIRANJE (300 EPOHA)")
+print("KORAK 6: TRENIRANJE SA EARLY STOPPING")
 print("=" * 80)
 
 optimierer = optim.Adam(modell.parameters(), lr=0.001)
 
 anzahlEpochen = 300
 besterVerlust = float('inf')
+earlyStopping_patience = 20  # Zaustavi ako se loss ne poboljša 20 epoha
+earlyStopping_counter = 0
+verlust_historija = []
 
-print("🚀 Treniranje početo... (ovo može potrajati)\n")
+print("🚀 Treniranje početo (Early Stopping aktivno - patience=20)...\n")
 
 for epoche in tqdm(range(anzahlEpochen), desc="Epohe", unit="epoha"):
     gesamtVerlust = 0
@@ -185,17 +211,40 @@ for epoche in tqdm(range(anzahlEpochen), desc="Epohe", unit="epoha"):
         anzahlBatches += 1
 
     durchschnittlicherVerlust = gesamtVerlust / anzahlBatches
+    verlust_historija.append(durchschnittlicherVerlust)
 
     # Ispis SVAKE epohe
-    print(f"✅ Epoha {epoche+1:3d}/{anzahlEpochen} | MSE Verlust: {durchschnittlicherVerlust:.6f}")
+    print(f"✅ Epoha {epoche+1:3d}/{anzahlEpochen} | MSE Verlust: {durchschnittlicherVerlust:.6f}", end="")
 
+    # Early Stopping logika
     if durchschnittlicherVerlust < besterVerlust:
         besterVerlust = durchschnittlicherVerlust
+        earlyStopping_counter = 0  # Resetiraj counter
         torch.save(modell.state_dict(), 'einfachesRNN.pth')
-        print(f"   💾 Novi najbolji model spremeljen! Verlust: {durchschnittlicherVerlust:.6f}")
+        print(f" | 💾 NOVI NAJBOLJI! (patience: 0/{earlyStopping_patience})")
+    else:
+        earlyStopping_counter += 1
+        razlika = durchschnittlicherVerlust - besterVerlust
+        print(f" | ⚠️ Nema poboljšanja (+{razlika:.6f}) | patience: {earlyStopping_counter}/{earlyStopping_patience}")
 
-print(f"\nTreniranje završeno!")
+        # Zaustavi treniranje ako nema poboljšanja
+        if earlyStopping_counter >= earlyStopping_patience:
+            print(f"\n🛑 EARLY STOPPING! Nema poboljšanja {earlyStopping_patience} epoha!")
+            print(f"Treniranje prekinuto u epohi {epoche+1}/{anzahlEpochen}")
+            break
+
+print(f"\n{'='*80}")
+print(f"TRENIRANJE ZAVRŠENO!")
+print(f"{'='*80}")
 print(f"Najbolji Verlust: {besterVerlust:.6f}")
+print(f"Ukupne epohe: {len(verlust_historija)}/{anzahlEpochen}")
+print(f"Ušteda vremena: {anzahlEpochen - len(verlust_historija)} epoha preskočeno (Early Stopping)")
+
+# Statisitka poboljšanja
+if len(verlust_historija) > 1:
+    pocetni_verlust = verlust_historija[0]
+    poboljsanje_procenta = ((pocetni_verlust - besterVerlust) / pocetni_verlust) * 100
+    print(f"Poboljšanje: {pocetni_verlust:.6f} → {besterVerlust:.6f} ({poboljsanje_procenta:.1f}%)")
 
 print("\n" + "=" * 80)
 print("KORAK 7: PREUZIMANJE MODELA")
