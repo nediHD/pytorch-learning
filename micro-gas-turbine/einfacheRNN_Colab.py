@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 # ============================================================================
-# EINFACHES RNN MODELL - ZA GOOGLE COLAB (SA GPU!)
-# MULTI-SET TRAINING: ex_1, ex_4, ex_22 + EARLY STOPPING
+# EINFACHES RNN MODELL - FÜR GOOGLE COLAB (MIT GPU!)
+# MULTI-SET TRAINING: ex_1, ex_9, ex_20, ex_21, ex_23, ex_24 + EARLY STOPPING
 # ============================================================================
 
-# KORAK 0: SETUP ZA GOOGLE COLAB
+# SCHRITT 0: SETUP FÜR GOOGLE COLAB
 print("=" * 80)
-print("KORAK 0: SETUP ZA GOOGLE COLAB")
+print("SCHRITT 0: SETUP FÜR GOOGLE COLAB")
 print("=" * 80)
 
 import torch
@@ -16,138 +16,138 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import TensorDataset, DataLoader
 from tqdm import tqdm
-
-# Provjeri GPU
-print(f"GPU dostupan: {torch.cuda.is_available()}")
-if torch.cuda.is_available():
-    print(f"GPU tip: {torch.cuda.get_device_name(0)}")
-else:
-    print("⚠️ GPU NIJE DOSTUPAN! Koristi CPU (SPORO)")
-
-# Za Colab - učitaj datoteke
-print("\nUčitavanje datoteka iz Colab:")
-from google.colab import files
-print("Klikni na 'Choose Files' i odaberi sve CSV datoteke:")
-print("  - ex_1.csv, ex_4.csv, ex_22.csv (svi dostupni setovi)")
-
-uploaded = files.upload()
-print(f"\n✅ Učitano: {list(uploaded.keys())}")
-print(f"Broj datoteka: {len(uploaded)}\n")
-
-# ============================================================================
-# KOLAB VERZIJA - Direktno sa datotekama
-# ============================================================================
-
-print("\n" + "=" * 80)
-print("KORAK 1: UČITAVANJE SVIH TRAINING SETOVA")
-print("=" * 80)
-
 import os
 from pathlib import Path
 
-# Pronađi sve dostupne CSV datoteke iz data/train/
-print("Tražim sve dostupne training setove iz data/train/...\n")
+# GPU-Verfügbarkeit prüfen
+print(f"GPU verfügbar: {torch.cuda.is_available()}")
+if torch.cuda.is_available():
+    print(f"GPU-Typ: {torch.cuda.get_device_name(0)}")
+else:
+    print("⚠️ GPU NICHT VERFÜGBAR! CPU wird verwendet (LANGSAM)")
 
-csv_files_dict = {}
+# Für Colab - Dateien hochladen
+print("\nDateien aus Colab hochladen:")
+from google.colab import files
+print("Klicke auf 'Choose Files' und wähle alle CSV-Dateien:")
+print("  - ex_1.csv, ex_9.csv, ex_20.csv, ex_21.csv, ex_23.csv, ex_24.csv")
 
-# Prvo pokušaj data/train/ (standardna lokacija)
-train_path = 'data/train'
-if os.path.exists(train_path):
-    for file in os.listdir(train_path):
-        if file.endswith('.csv') and file.startswith('ex_'):
-            full_path = os.path.join(train_path, file)
-            csv_files_dict[file] = full_path
-            print(f"  ✅ Pronađena: {file}")
+hochgeladene_dateien = files.upload()
+print(f"\n✅ Hochgeladen: {list(hochgeladene_dateien.keys())}")
+print(f"Anzahl der Dateien: {len(hochgeladene_dateien)}\n")
 
-# Ako nema data/train/, traži u cijelom direktoriju
-if not csv_files_dict:
-    print("  Direktorij data/train/ nije pronađen, tražim drugdje...")
-    for root, dirs, files in os.walk('.'):
-        for file in files:
-            if file.endswith('.csv') and file.startswith('ex_'):
-                full_path = os.path.join(root, file)
-                csv_files_dict[file] = full_path
-                print(f"  ✅ Pronađena: {file}")
+# ============================================================================
+# COLAB VERSION - Direkt mit Dateien
+# ============================================================================
 
-if not csv_files_dict:
-    print("❌ Nema CSV datoteka!")
+print("\n" + "=" * 80)
+print("SCHRITT 1: ALLE TRAININGSDATENSÄTZE LADEN")
+print("=" * 80)
+
+# Alle verfügbaren CSV-Dateien finden
+print("Suche nach allen verfügbaren Trainingsdatensätzen aus data/train/...\n")
+
+csv_dateien_verzeichnis = {}
+
+# Versuche zuerst data/train/ (Standard-Speicherort)
+trainingspfad = 'data/train'
+if os.path.exists(trainingspfad):
+    for datei in os.listdir(trainingspfad):
+        if datei.endswith('.csv') and datei.startswith('ex_'):
+            vollstaendiger_pfad = os.path.join(trainingspfad, datei)
+            csv_dateien_verzeichnis[datei] = vollstaendiger_pfad
+            print(f"  ✅ Gefunden: {datei}")
+
+# Wenn data/train/ nicht existiert, suche im ganzen Verzeichnis
+if not csv_dateien_verzeichnis:
+    print("  Verzeichnis data/train/ nicht gefunden, suche anderswo...")
+    for wurzel, verzeichnisse, dateien in os.walk('.'):
+        for datei in dateien:
+            if datei.endswith('.csv') and datei.startswith('ex_'):
+                vollstaendiger_pfad = os.path.join(wurzel, datei)
+                csv_dateien_verzeichnis[datei] = vollstaendiger_pfad
+                print(f"  ✅ Gefunden: {datei}")
+
+if not csv_dateien_verzeichnis:
+    print("❌ Keine CSV-Dateien gefunden!")
     exit()
 
-# Učitaj i objedini sve datoteke
-print(f"\n📂 Objedinjujem {len(csv_files_dict)} datoteke...")
+# Alle Dateien laden und kombinieren
+print(f"\n📂 Kombiniere {len(csv_dateien_verzeichnis)} Dateien...")
 
-svi_ulazi = []
-svi_izlazi = []
-ukupni_redci = 0
+alle_eingaben = []
+alle_ausgaben = []
+gesamt_zeilen = 0
 
-for naziv, putanja in sorted(csv_files_dict.items()):
-    daten = pd.read_csv(putanja)
-    ulaz = daten['input_voltage'].values
-    izlaz = daten['el_power'].values
+for name, pfad in sorted(csv_dateien_verzeichnis.items()):
+    daten = pd.read_csv(pfad)
+    eingabe = daten['input_voltage'].values
+    ausgabe = daten['el_power'].values
 
-    svi_ulazi.append(ulaz)
-    svi_izlazi.append(izlaz)
-    ukupni_redci += len(daten)
+    alle_eingaben.append(eingabe)
+    alle_ausgaben.append(ausgabe)
+    gesamt_zeilen += len(daten)
 
-    print(f"  ✅ {naziv}: {len(daten)} redaka (min={ulaz.min():.2f}V, max={ulaz.max():.2f}V)")
+    print(f"  ✅ {name}: {len(daten)} Zeilen (min={eingabe.min():.2f}V, max={eingabe.max():.2f}V)")
 
-# Objedini sve u jedan niz
-eingangssignal = np.concatenate(svi_ulazi)
-ausgangssignal = np.concatenate(svi_izlazi)
+# Kombiniere alle in einen Array
+eingangssignal = np.concatenate(alle_eingaben)
+ausgangssignal = np.concatenate(alle_ausgaben)
 
-print(f"\n📊 UKUPNI TRAINING SET:")
-print(f"  Redaka: {ukupni_redci}")
-print(f"  Ulazni signal - Min: {eingangssignal.min():.2f}V, Max: {eingangssignal.max():.2f}V")
-print(f"  Izlazni signal - Min: {ausgangssignal.min():.2f}W, Max: {ausgangssignal.max():.2f}W")
+print(f"\n📊 GESAMTER TRAININGSDATENSATZ:")
+print(f"  Zeilen: {gesamt_zeilen}")
+print(f"  Eingangssignal - Min: {eingangssignal.min():.2f}V, Max: {eingangssignal.max():.2f}V")
+print(f"  Ausgangssignal - Min: {ausgangssignal.min():.2f}W, Max: {ausgangssignal.max():.2f}W")
 
 print("\n" + "=" * 80)
-print("KORAK 2: SEKVENCE (N=451)")
+print("SCHRITT 2: SEQUENZEN (N=451)")
 print("=" * 80)
 
-N = 451
+fenstergroesse = 451
 
-eingabeSequenzen = []
-ausgabeSequenzen = []
+eingabe_sequenzen = []
+ausgabe_sequenzen = []
 
-for i in range(len(eingangssignal) - N):
-    eingabeSequenzen.append(eingangssignal[i:i+N])
-    ausgabeSequenzen.append(ausgangssignal[i+N])
+for i in range(len(eingangssignal) - fenstergroesse):
+    eingabe_sequenzen.append(eingangssignal[i:i+fenstergroesse])
+    ausgabe_sequenzen.append(ausgangssignal[i+fenstergroesse])
 
-eingabeSequenzen = np.array(eingabeSequenzen)
-ausgabeSequenzen = np.array(ausgabeSequenzen)
+eingabe_sequenzen = np.array(eingabe_sequenzen)
+ausgabe_sequenzen = np.array(ausgabe_sequenzen)
 
-print(f"Kreirano {len(eingabeSequenzen)} sekvenci")
+print(f"Es wurden {len(eingabe_sequenzen)} Sequenzen erstellt")
 
-# Normalizacija
-minEingabe, maxEingabe = eingangssignal.min(), eingangssignal.max()
-eingabeSequenzen = (eingabeSequenzen - minEingabe) / (maxEingabe - minEingabe)
+# Normalisierung
+min_eingabe, max_eingabe = eingangssignal.min(), eingangssignal.max()
+eingabe_sequenzen = (eingabe_sequenzen - min_eingabe) / (max_eingabe - min_eingabe)
 
-minAusgabe, maxAusgabe = ausgangssignal.min(), ausgangssignal.max()
-ausgabeSequenzen = (ausgabeSequenzen - minAusgabe) / (maxAusgabe - minAusgabe)
+min_ausgabe, max_ausgabe = ausgangssignal.min(), ausgangssignal.max()
+ausgabe_sequenzen = (ausgabe_sequenzen - min_ausgabe) / (max_ausgabe - min_ausgabe)
 
-print("Podaci normalizirani")
+print("Daten im Bereich 0-1 normalisiert")
 
 print("\n" + "=" * 80)
-print("KORAK 3: PYTORCH SETUP")
+print("SCHRITT 3: PYTORCH SETUP")
 print("=" * 80)
 
-eingabeSequenzenTensor = torch.FloatTensor(eingabeSequenzen).unsqueeze(-1)
-ausgabeSequenzenTensor = torch.FloatTensor(ausgabeSequenzen).unsqueeze(-1)
+eingabe_tensor = torch.FloatTensor(eingabe_sequenzen).unsqueeze(-1)
+ausgabe_tensor = torch.FloatTensor(ausgabe_sequenzen).unsqueeze(-1)
 
-dataset = TensorDataset(eingabeSequenzenTensor, ausgabeSequenzenTensor)
+datensatz = TensorDataset(eingabe_tensor, ausgabe_tensor)
 
-chargengröße = 32
-datenlader = DataLoader(dataset, batch_size=chargengröße, shuffle=True)
+chargengroesse = 32
+datenlader = DataLoader(datensatz, batch_size=chargengroesse, shuffle=True)
 
-print(f"Dataset: {len(dataset)} primjera")
-print(f"Batches po epohi: {len(datenlader)}")
+print(f"Datensatz: {len(datensatz)} Beispiele")
+print(f"Chargengröße: {chargengroesse}")
+print(f"Anzahl der Chargen pro Epoche: {len(datenlader)}")
 
 print("\n" + "=" * 80)
-print("KORAK 4: RNN MODELL")
+print("SCHRITT 4: RNN-MODELL")
 print("=" * 80)
 
 class EinfachesRNNModell(nn.Module):
-    def __init__(self, eingabegröße=1, verstecktgröße=32, anzahlLSTMSchichten=3, ausgabegröße=1):
+    def __init__(self, eingabedimension=1, verstecktedimension=32, anzahl_lstm_schichten=3, ausgabedimension=1):
         super(EinfachesRNNModell, self).__init__()
         self.lstm1 = nn.LSTM(input_size=1, hidden_size=32, batch_first=True)
         self.lstm2 = nn.LSTM(input_size=32, hidden_size=32, batch_first=True)
@@ -155,106 +155,107 @@ class EinfachesRNNModell(nn.Module):
         self.dichteSchicht = nn.Linear(in_features=32, out_features=1)
 
     def forward(self, x):
-        ausgabeLSTM1, _ = self.lstm1(x)
-        ausgabeLSTM2, _ = self.lstm2(ausgabeLSTM1)
-        ausgabeLSTM3, _ = self.lstm3(ausgabeLSTM2)
-        letzterWert = ausgabeLSTM3[:, -1, :]
-        vorhersage = self.dichteSchicht(letzterWert)
+        ausgabe_lstm1, _ = self.lstm1(x)
+        ausgabe_lstm2, _ = self.lstm2(ausgabe_lstm1)
+        ausgabe_lstm3, _ = self.lstm3(ausgabe_lstm2)
+        letzter_wert = ausgabe_lstm3[:, -1, :]
+        vorhersage = self.dichteSchicht(letzter_wert)
         return vorhersage
 
 modell = EinfachesRNNModell()
 
 # GPU!
-gerät = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-modell.to(gerät)
-print(f"Model na: {gerät}")
-if gerät.type == 'cuda':
-    print("✅ GPU KORIŠTEN - Trebao bi biti BRZI! 🚀")
+geraet = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+modell.to(geraet)
+print(f"Modell auf: {geraet}")
+if geraet.type == 'cuda':
+    print("✅ GPU WIRD VERWENDET - Sollte SCHNELL sein! 🚀")
 
 print("\n" + "=" * 80)
-print("KORAK 5: LOSS FUNKCIJA")
+print("SCHRITT 5: VERLUSTFUNKTION")
 print("=" * 80)
 
 verlustfunktion = nn.MSELoss()
-print("Verlustfunktion: MSE")
+print("Verlustfunktion: MSE (Mean Squared Error)")
 
 print("\n" + "=" * 80)
-print("KORAK 6: TRENIRANJE SA EARLY STOPPING")
+print("SCHRITT 6: TRAINING MIT EARLY STOPPING")
 print("=" * 80)
 
-optimierer = optim.Adam(modell.parameters(), lr=0.001)
+optimizer = optim.Adam(modell.parameters(), lr=0.001)
 
-anzahlEpochen = 300
-besterVerlust = float('inf')
-earlyStopping_patience = 20  # Zaustavi ako se loss ne poboljša 20 epoha
-earlyStopping_counter = 0
-verlust_historija = []
+anzahl_epochen = 300
+bester_verlust = float('inf')
+geduld_schwelle = 20  # Stoppe wenn sich Verlust 20 Epochen nicht verbessert
+geduld_zaehler = 0
+verlust_geschichte = []
 
-print("🚀 Treniranje početo (Early Stopping aktivno - patience=20)...\n")
+print("🚀 Training gestartet (Early Stopping aktiviert - Geduld=20)...\n")
 
-for epoche in tqdm(range(anzahlEpochen), desc="Epohe", unit="epoha"):
-    gesamtVerlust = 0
-    anzahlBatches = 0
+for epoche in tqdm(range(anzahl_epochen), desc="Epochen", unit="Epoche"):
+    gesamt_verlust = 0
+    anzahl_chargen = 0
 
-    for XCharge, yCharge in tqdm(datenlader, desc=f"Epoha {epoche+1}", leave=False):
-        XCharge = XCharge.to(gerät)
-        yCharge = yCharge.to(gerät)
+    for eingabe_charge, ausgabe_charge in tqdm(datenlader, desc=f"Epoche {epoche+1}", leave=False):
+        eingabe_charge = eingabe_charge.to(geraet)
+        ausgabe_charge = ausgabe_charge.to(geraet)
 
-        yVorhersage = modell(XCharge)
-        loss = verlustfunktion(yVorhersage, yCharge)
+        vorhersage = modell(eingabe_charge)
+        verlust = verlustfunktion(vorhersage, ausgabe_charge)
 
-        optimierer.zero_grad()
-        loss.backward()
-        optimierer.step()
+        optimizer.zero_grad()
+        verlust.backward()
+        optimizer.step()
 
-        gesamtVerlust += loss.item()
-        anzahlBatches += 1
+        gesamt_verlust += verlust.item()
+        anzahl_chargen += 1
 
-    durchschnittlicherVerlust = gesamtVerlust / anzahlBatches
-    verlust_historija.append(durchschnittlicherVerlust)
+    durchschnittlicher_verlust = gesamt_verlust / anzahl_chargen
+    verlust_geschichte.append(durchschnittlicher_verlust)
 
-    # Ispis SVAKE epohe
-    print(f"✅ Epoha {epoche+1:3d}/{anzahlEpochen} | MSE Verlust: {durchschnittlicherVerlust:.6f}", end="")
+    # Ausgabe für jede Epoche
+    print(f"✅ Epoche {epoche+1:3d}/{anzahl_epochen} | MSE Verlust: {durchschnittlicher_verlust:.6f}", end="")
 
-    # Early Stopping logika
-    if durchschnittlicherVerlust < besterVerlust:
-        besterVerlust = durchschnittlicherVerlust
-        earlyStopping_counter = 0  # Resetiraj counter
+    # Early Stopping Logik
+    if durchschnittlicher_verlust < bester_verlust:
+        bester_verlust = durchschnittlicher_verlust
+        geduld_zaehler = 0  # Zurücksetzen
         torch.save(modell.state_dict(), 'einfachesRNN.pth')
-        print(f" | 💾 NOVI NAJBOLJI! (patience: 0/{earlyStopping_patience})")
+        print(f" | 💾 NEUES BEST-MODELL! (Geduld: 0/{geduld_schwelle})")
     else:
-        earlyStopping_counter += 1
-        razlika = durchschnittlicherVerlust - besterVerlust
-        print(f" | ⚠️ Nema poboljšanja (+{razlika:.6f}) | patience: {earlyStopping_counter}/{earlyStopping_patience}")
+        geduld_zaehler += 1
+        differenz = durchschnittlicher_verlust - bester_verlust
+        print(f" | ⚠️ Keine Verbesserung (+{differenz:.6f}) | Geduld: {geduld_zaehler}/{geduld_schwelle}")
 
-        # Zaustavi treniranje ako nema poboljšanja
-        if earlyStopping_counter >= earlyStopping_patience:
-            print(f"\n🛑 EARLY STOPPING! Nema poboljšanja {earlyStopping_patience} epoha!")
-            print(f"Treniranje prekinuto u epohi {epoche+1}/{anzahlEpochen}")
+        # Stoppe Training wenn Geduld überschritten
+        if geduld_zaehler >= geduld_schwelle:
+            print(f"\n🛑 EARLY STOPPING! Keine Verbesserung für {geduld_schwelle} Epochen!")
+            print(f"Training beendet in Epoche {epoche+1}/{anzahl_epochen}")
             break
 
 print(f"\n{'='*80}")
-print(f"TRENIRANJE ZAVRŠENO!")
+print(f"TRAINING ABGESCHLOSSEN!")
 print(f"{'='*80}")
-print(f"Najbolji Verlust: {besterVerlust:.6f}")
-print(f"Ukupne epohe: {len(verlust_historija)}/{anzahlEpochen}")
-print(f"Ušteda vremena: {anzahlEpochen - len(verlust_historija)} epoha preskočeno (Early Stopping)")
+print(f"Bester Verlust: {bester_verlust:.6f}")
+print(f"Gesamte Epochen: {len(verlust_geschichte)}/{anzahl_epochen}")
+print(f"Zeitersparnis: {anzahl_epochen - len(verlust_geschichte)} Epochen übersprungen (Early Stopping)")
 
-# Statisitka poboljšanja
-if len(verlust_historija) > 1:
-    pocetni_verlust = verlust_historija[0]
-    poboljsanje_procenta = ((pocetni_verlust - besterVerlust) / pocetni_verlust) * 100
-    print(f"Poboljšanje: {pocetni_verlust:.6f} → {besterVerlust:.6f} ({poboljsanje_procenta:.1f}%)")
+# Verbesserungsstatistik
+if len(verlust_geschichte) > 1:
+    anfangs_verlust = verlust_geschichte[0]
+    verbesserungs_prozentsatz = ((anfangs_verlust - bester_verlust) / anfangs_verlust) * 100
+    print(f"Verbesserung: {anfangs_verlust:.6f} → {bester_verlust:.6f} ({verbesserungs_prozentsatz:.1f}%)")
 
 print("\n" + "=" * 80)
-print("KORAK 7: PREUZIMANJE MODELA")
+print("SCHRITT 7: MODELL HERUNTERLADEN")
 print("=" * 80)
 
-# Preuzmi model sa Colab-a
+# Modell von Colab herunterladen
 files.download('einfachesRNN.pth')
-print("✅ Model 'einfachesRNN.pth' preuzet!")
+print("✅ Modell 'einfachesRNN.pth' heruntergeladen!")
 
 print("\n" + "=" * 80)
-print("GOTOVO!")
+print("FERTIG!")
 print("=" * 80)
-print("Model je treniran i preuzet!")
+print("Modell ist trainiert und heruntergeladen!")
+print("\n🎉 Bereit für die nächste Phase: Knowledge-Guided Learning!")
